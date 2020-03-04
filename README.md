@@ -58,7 +58,7 @@ compile files('libs/adscore-client-libraries-1.0.0.jar')
 
 If you want you can also build the library yourself. in order to do that you need to ensure:
 - JDK 1.8 or higher
-- Gradle 5.0.0 or higher
+- Gradle 6.2.0 or higher
 
 if above is satisfied than simply run following:
 
