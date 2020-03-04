@@ -1,6 +1,5 @@
 package com.adscore.signature;
 
-import com.adscore.signature.ex.SignatureVerificationException;
 import inet.ipaddr.AddressStringException;
 import inet.ipaddr.IPAddressString;
 
