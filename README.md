@@ -24,7 +24,7 @@ The easiest way to utilize the library is to attach it as a Maven dependency:
 ```maven
 <dependency>
   <groupId>com.adscore</groupId>
-   <artifactId>client-libraries</artifactId>
+   <artifactId>adscore-client-libraries</artifactId>
    <version>1.0.0</version>
 </dependency>
 ```
@@ -32,7 +32,7 @@ The easiest way to utilize the library is to attach it as a Maven dependency:
 or as a Gradle dependency:
 
 ```gradle
-compile 'com.adscore:client-libraries:1.0.0'
+compile 'com.adscore:adscore-client-libraries:1.0.0'
 ```
 
 <h5>Maven/Gradle static file</h5>
