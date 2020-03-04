@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id "com.diffplug.gradle.spotless" version "3.14.0"
     id 'maven-publish'
     id 'signing'
@@ -9,14 +9,14 @@ group 'com.adscore'
 version '1.0.0'
 
 sourceCompatibility = 1.8
-
+ 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.github.seancfoley:ipaddress:5.2.1'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    implementation 'com.github.seancfoley:ipaddress:5.2.1'
 }
 
 spotless {
@@ -31,6 +31,11 @@ spotless {
 
         googleJavaFormat()
     }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
