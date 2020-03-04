@@ -1,10 +1,11 @@
 plugins {
     id 'java'
     id "com.diffplug.gradle.spotless" version "3.14.0"
+    id 'maven-publish'
 }
 
-group 'adscore'
-version '1.0'
+group 'com.adscore'
+version '1.0.0'
 
 sourceCompatibility = 1.8
 
@@ -28,5 +29,56 @@ spotless {
         removeUnusedImports()
 
         googleJavaFormat()
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'client-libraries'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'AdScore.com client libraries'
+                description = 'Package containing libraries facilitating using of AdScore.com APIs'
+                url = 'https://github.com/Adscore/client-libs-java'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://raw.githubusercontent.com/Adscore/client-libs-java/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'lhyla'
+                        name = 'Łukasz Hyła'
+                        email = 'lukasz.hyla@iterative.pl'
+                    }
+                    developer {
+                        id = 'kgasior'
+                        name = 'Krzysztof Gąsior'
+                        email = 'krzysztof.gasior@iterative.pl'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com:Adscore/client-libs-java.git'
+                    developerConnection = 'scm:git:ssh://github.com:Adscore/client-libs-java.git'
+                    url = 'https://github.com/Adscore/client-libs-java/tree/master'
+                }
+            }
+        }
+    }
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }
