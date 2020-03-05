@@ -17,7 +17,6 @@ In order to use library:
 - JRE 1.8 or higher is required
 
 <h5>Maven/Gradle central repository</h5>
-<i>[available soon]</i>
 
 The easiest way to utilize the library is to attach it as a Maven dependency:
 
