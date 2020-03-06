@@ -16,6 +16,35 @@ import java.util.regex.Pattern;
  */
 public class SignatureVerifier {
 
+  // constants
+
+  private static HashMap<Integer, Field> fieldIds =
+      new HashMap<Integer, Field>() {
+        {
+          put(0x00, new Field("requestTime", "ulong"));
+          put(0x01, new Field("signatureTime", "ulong"));
+          put(0x40, new Field(null, "ushort"));
+          put(0x80, new Field("masterSignType", "uchar"));
+          put(0x81, new Field("customerSignType", "uchar"));
+          put(0xC0, new Field("masterToken", "string"));
+          put(0xC1, new Field("customerToken", "string"));
+          put(0xC2, new Field("masterTokenV6", "string"));
+          put(0xC3, new Field("customerTokenV6", "string"));
+        }
+      };
+
+  private static HashMap<String, String> results =
+      new HashMap<String, String>() {
+        {
+          put("0", "ok");
+          put("3", "junk");
+          put("6", "proxy");
+          put("9", "bot");
+        }
+      };
+
+  // API
+
   /**
    * @param signature the string which we want to verify
    * @param userAgent string with full description of user agent like 'Mozilla/5.0 (Linux; Android
@@ -151,12 +180,6 @@ public class SignatureVerifier {
 
           token = (String) data.get(signRole + "Token");
         }
-        HashMap<String, String> results = new HashMap<>();
-
-        results.put("0", "ok");
-        results.put("3", "junk");
-        results.put("6", "proxy");
-        results.put("9", "bot");
 
         for (String result : results.keySet()) {
           switch (signType) {
@@ -209,6 +232,8 @@ public class SignatureVerifier {
       return validationResult;
     }
   }
+
+  // internals
 
   /**
    * @param key in base64 format
@@ -415,18 +440,6 @@ public class SignatureVerifier {
   }
 
   private static Field fieldTypeDef(Integer fieldId, int i) {
-    HashMap<Integer, Field> fieldIds = new HashMap<>();
-
-    fieldIds.put(0x00, new Field("requestTime", "ulong"));
-    fieldIds.put(0x01, new Field("signatureTime", "ulong"));
-    fieldIds.put(0x40, new Field(null, "ushort"));
-    fieldIds.put(0x80, new Field("masterSignType", "uchar"));
-    fieldIds.put(0x81, new Field("customerSignType", "uchar"));
-    fieldIds.put(0xC0, new Field("masterToken", "string"));
-    fieldIds.put(0xC1, new Field("customerToken", "string"));
-    fieldIds.put(0xC2, new Field("masterTokenV6", "string"));
-    fieldIds.put(0xC3, new Field("customerTokenV6", "string"));
-
     if (fieldIds.get(fieldId) != null) {
       return fieldIds.get(fieldId);
     }
