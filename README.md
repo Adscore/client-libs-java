@@ -69,7 +69,7 @@ or following if you do not have gradle installed globally:
 user@PC:~/project-dir$ ./gradlew build
 ```
 
-executing above should succesfully run unit tests and produce `client-libraries-x-x-x.jar` within `~/project-dir/build/libs` directory
+executing above should succesfully run unit tests and produce `adscore-client-libraries-x-x-x.jar` within `~/project-dir/build/libs` directory
 
 If you wish you can also do:
 
@@ -83,6 +83,33 @@ which should allow to reference library from your local repository.
 
 <h3>1. SignatureVerifier</h3>
 
+The definition of verify function looks as follows:
+
+```java
+  /**
+   * @param signature the string which we want to verify
+   * @param userAgent string with full description of user agent like 'Mozilla/5.0 (Linux; Android
+   *     9; SM-J530F)...'
+   * @param signRole string which specifies if we operate in customer or master role. For AdScore
+   *     customers this should be always set to 'customer'
+   * @param key string containing related zone key
+   * @param ipAddresses array of strings containing ip4 or ip6 addresses against which we check
+   *     signature
+   * @param expiry number which is time in seconds. IF signatureTime + expiry > CurrentDateInSeconds
+   *     THEN result is expired
+   * @param isKeyBase64Encoded boolean defining if passed key is base64 encoded or not
+   * @return VerificationResult
+   */
+  public static SignatureVerificationResult verify(
+      String signature,
+      String userAgent,
+      String signRole,
+      String key,
+      [boolean isKeyBase64Encoded,] // optional due existance of overloaded function
+      [Integer expiry,]             // optional due existance of overloaded function
+      String... ipAddresses) {
+```
+
 Following are few quick examples of how to use verifier, first import the entry point for library:
 
 ```java
@@ -90,56 +117,68 @@ import com.adscore.signature.SignatureVerifier;
 [..]
 ```
 
-than you have few options of how to verify signatures
-
-<h5> Verify with encoded key</h5>
+than you have at least few options of how to verify signatures:
 
 ```java
-SignatureVerificationResult result = SignatureVerifier.verify(
- "signature",
- "userAgent",
- "customer",
-  "encodedKey",
-  true,
- "firstIpAddress",
- "secondIpAddress"
+
+    // Verify with base64 encoded key
+    SignatureVerificationResult result =
+        SignatureVerifier.verify(
+            "BAYAXlNKGQFeU0oggAGBAcAAIAUdn1gbCBmA-u-kF--oUSuFw4B93piWC1Dn-D_1_6gywQAgEXCqgk2zPD6hWI1Y2rlrtV-21eIYBsms0odUEXNbRbA",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
+            "customer",
+            "ZWmJa2ozOWRzamZrbHNkZjkza2xzZGFmOTBkZg==",
+            true, // notify that we use encoded key
+            "73.109.57.137");
+
+    [..]
+
+    // Verify with checking if expired
+    //
+    // IF signatureTime + expiry > CurrentDateInSeconds
+    // THEN result.getExpired() = true
+    result =
+        SignatureVerifier.verify(
+            "BAYAXlNKGQFeU0oggAGBAcAAIAUdn1gbCBmA-u-kF--oUSuFw4B93piWC1Dn-D_1_6gywQAgEXCqgk2zPD6hWI1Y2rlrtV-21eIYBsms0odUEXNbRbA",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
+            "customer",
+            "key_non_base64_encoded",
+            60, // 1 min
+            "73.109.57.137");
+    [..]
+
+    // Verify against number of ip4 and ip6 addresses
+    result =
+        SignatureVerifier.verify(
+            "BAYAXlNKGQFeU0oggAGBAcAAIAUdn1gbCBmA-u-kF--oUSuFw4B93piWC1Dn-D_1_6gywQAgEXCqgk2zPD6hWI1Y2rlrtV-21eIYBsms0odUEXNbRbA",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
+            "customer",
+            "key_non_base64_encoded",
+            "73.109.57.137", "73.109.57.138", "73.109.57.139", "73.109.57.140", "0:0:0:0:0:ffff:4d73:55d3", "0:0:0:0:0:fffff:4d73:55d4", "0:0:0:0:0:fffff:4d73:55d5", "0:0:0:0:0:fffff:4d73:55d6");
+    
+    // Verify 
+    
+    result =
+        SignatureVerifier.verify(
+            "BAYAXlNKGQFeU0oggAGBAcAAIAUdn1gbCBmA-u-kF--oUSuFw4B93piWC1Dn-D_1_6gywQAgEXCqgk2zPD6hWI1Y2rlrtV-21eIYBsms0odUEXNbRbA",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
+            "customer",
+            "ZWmJa2ozOWRzamZrbHNkZjkza2xzXHEmOTBkZg==",
+            true, // notify that we use encoded key
+            360,  // 5min
+            "73.109.57.137", "73.109.57.138", "73.109.57.139", "73.109.57.140", "0:0:0:0:0:ffff:4d73:55d3", "0:0:0:0:0:fffff:4d73:55d4", "0:0:0:0:0:fffff:4d73:55d5", "0:0:0:0:0:fffff:4d73:55d6");
+    
+    
+    // result object will contain a non-null value in verdict field in case of success
+    // or a non-null value in error field in cases of failure
+    
+    if (result.getError() != null) {
+      // Failed to verify signature, handle error i.e.
+      Logger.warning("Failed to verify signature: " + result.getError());
+    } else {
+      Logger.info("Signature verification with verdict: " + result.getVerdict() + " for ip " + result.getIpAddress());
+    }
 );
-
 ```
 
-result object will contain a non-null value in verdict field in case of success
-or a non-null value in error field in cases of failure
-
-<h5>Verify with expiry</h5>
-
-```java
-SignatureVerificationResult result = SignatureVerifier.verify(
- "signature",
- "userAgent",
- "signRole",
-  "decodedKey",
-  12345, //expiry
- "firstIpAddress",
- "secondIpAddress"
-);
-```
-
-
-<h5>Verify expiry with encoded key</h5>
-
-```java
-SignatureVerificationResult result = SignatureVerifier.verify(
- "signature",
- "userAgent",
- "signRole",
-  "encodedKey",
-  true,
-  12345, //expiry
- "firstIpAddress",
- "secondIpAddress"
-)
-```
-
-
-IF signatureTime + expiry > CurrentDateInSeconds
-THEN result.getExpired() = true
+For more examples please refere to unit tests i.e. `test/java/com/adscore/signature/SingatureVerifierTest.java`
