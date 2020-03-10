@@ -82,7 +82,7 @@ public class SignatureVerifier {
   public static SignatureVerificationResult verify(
       String signature, String userAgent, String signRole, String key, String... ipAddresses) {
 
-    return SignatureVerifier.verify(signature, userAgent, signRole, key, false, null, ipAddresses);
+    return SignatureVerifier.verify(signature, userAgent, signRole, key, true, null, ipAddresses);
   }
 
   /**
@@ -106,8 +106,7 @@ public class SignatureVerifier {
       Integer expiry,
       String... ipAddresses) {
 
-    return SignatureVerifier.verify(
-        signature, userAgent, signRole, key, false, expiry, ipAddresses);
+    return SignatureVerifier.verify(signature, userAgent, signRole, key, true, expiry, ipAddresses);
   }
 
   /**
