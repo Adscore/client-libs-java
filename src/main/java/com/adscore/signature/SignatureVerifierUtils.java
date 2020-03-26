@@ -25,15 +25,18 @@
 package com.adscore.signature;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Couple of general purpose utilities created while porting from JS version of library
+ * General-purpose utilities, that help with string manipulations, encoding/decoding adscore key
+ * etc.
  *
  * @author Łukasz Hyła <lhyla@iterative.pl>
  */
-class GeneralUtils {
+class SignatureVerifierUtils {
 
   /** Method behaves same as js function: "str".substr(startIdx,length) */
   static String substr(String str, int startIdx, int length) {
@@ -74,5 +77,38 @@ class GeneralUtils {
 
     byte[] digest = mac.doFinal(data.getBytes());
     return new String(digest, StandardCharsets.ISO_8859_1);
+  }
+
+  /**
+   * @param key in base64 format
+   * @return decoded key
+   */
+  static String keyDecode(String key) {
+    return atob(key);
+  }
+
+  static String atob(String str) {
+    return new String(Base64.getMimeDecoder().decode(str.getBytes()), StandardCharsets.ISO_8859_1);
+  }
+
+  static String padStart(String inputString, int length, char c) {
+    if (inputString.length() >= length) {
+      return inputString;
+    }
+    StringBuilder sb = new StringBuilder();
+    while (sb.length() < length - inputString.length()) {
+      sb.append(c);
+    }
+    sb.append(inputString);
+
+    return sb.toString();
+  }
+
+  static boolean isCharMatches(String regex, int formatChar) {
+    return Pattern.compile(regex).matcher(String.valueOf(formatChar)).matches();
+  }
+
+  static String fromBase64(String data) {
+    return SignatureVerifierUtils.atob(data.replace('_', '/').replace('-', '+'));
   }
 }

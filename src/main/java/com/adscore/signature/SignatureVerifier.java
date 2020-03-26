@@ -24,12 +24,9 @@
 
 package com.adscore.signature;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.StringJoiner;
-import java.util.regex.Pattern;
 
 /**
  * Entry point of AdScore signature verification library. It expose verify method allowing to verify
@@ -156,7 +153,7 @@ public class SignatureVerifier {
       Integer expiry,
       String... ipAddresses) {
 
-    key = isKeyBase64Encoded ? keyDecode(key) : key;
+    key = isKeyBase64Encoded ? SignatureVerifierUtils.keyDecode(key) : key;
 
     SignatureVerificationResult validationResult = new SignatureVerificationResult();
 
@@ -181,7 +178,7 @@ public class SignatureVerifier {
         return validationResult;
       }
 
-      int signType = GeneralUtils.characterToInt(data.get(signRole + "SignType"));
+      int signType = SignatureVerifierUtils.characterToInt(data.get(signRole + "SignType"));
 
       for (String ipAddress : ipAddresses) {
         String token;
@@ -209,8 +206,8 @@ public class SignatureVerifier {
               String signatureBase =
                   getBase(
                       result,
-                      GeneralUtils.characterToInt(data.get("requestTime")),
-                      GeneralUtils.characterToInt(data.get("signatureTime")),
+                      SignatureVerifierUtils.characterToInt(data.get("requestTime")),
+                      SignatureVerifierUtils.characterToInt(data.get("signatureTime")),
                       ipAddress,
                       userAgent);
 
@@ -218,7 +215,7 @@ public class SignatureVerifier {
 
               if (isHashedDataEqualToToken) {
                 if (expiry != null
-                    && GeneralUtils.characterToInt(data.get("signatureTime")) + expiry
+                    && SignatureVerifierUtils.characterToInt(data.get("signatureTime")) + expiry
                         < new Date().getTime() / 1000) {
                   validationResult.setExpired(true);
                   return validationResult;
@@ -257,31 +254,6 @@ public class SignatureVerifier {
 
   // internals
 
-  /**
-   * @param key in base64 format
-   * @return decoded key
-   */
-  static String keyDecode(String key) {
-    return SignatureVerifier.atob(key);
-  }
-
-  static String atob(String str) {
-    return new String(Base64.getMimeDecoder().decode(str.getBytes()), StandardCharsets.ISO_8859_1);
-  }
-
-  static String padStart(String inputString, int length, char c) {
-    if (inputString.length() >= length) {
-      return inputString;
-    }
-    StringBuilder sb = new StringBuilder();
-    while (sb.length() < length - inputString.length()) {
-      sb.append(c);
-    }
-    sb.append(inputString);
-
-    return sb.toString();
-  }
-
   static String getBase(
       String verdict, int requestTime, int signatureTime, String ipAddress, String userAgent) {
     StringJoiner joiner = new StringJoiner("\n");
@@ -293,10 +265,6 @@ public class SignatureVerifier {
         .add(ipAddress)
         .add(userAgent)
         .toString();
-  }
-
-  private static String fromBase64(String data) {
-    return atob(data.replace('_', '/').replace('-', '+'));
   }
 
   private static HashMap<String, Object> unpack(String format, String data)
@@ -313,13 +281,14 @@ public class SignatureVerifier {
     int currentResult;
 
     while (formatPointer < format.length()) {
-      instruction = GeneralUtils.charAt(format, formatPointer);
+      instruction = SignatureVerifierUtils.charAt(format, formatPointer);
       quantifier = "";
       formatPointer++;
 
       while ((formatPointer < format.length())
-          && isCharMatches("[\\d\\*]", GeneralUtils.charAt(format, formatPointer))) {
-        quantifier += GeneralUtils.charAt(format, formatPointer);
+          && SignatureVerifierUtils.isCharMatches(
+              "[\\d\\*]", SignatureVerifierUtils.charAt(format, formatPointer))) {
+        quantifier += SignatureVerifierUtils.charAt(format, formatPointer);
         formatPointer++;
       }
       if ("".equals(quantifier)) {
@@ -328,11 +297,11 @@ public class SignatureVerifier {
 
       StringBuilder labelSb = new StringBuilder();
       while ((formatPointer < format.length()) && (format.charAt(formatPointer) != '/')) {
-        labelSb.append(GeneralUtils.charAt(format, formatPointer++));
+        labelSb.append(SignatureVerifierUtils.charAt(format, formatPointer++));
       }
       label = labelSb.toString();
 
-      if (GeneralUtils.charAt(format, formatPointer) == '/') {
+      if (SignatureVerifierUtils.charAt(format, formatPointer) == '/') {
         formatPointer++;
       }
 
@@ -345,11 +314,11 @@ public class SignatureVerifier {
             quantifierInt = Integer.parseInt(quantifier, 10);
           }
 
-          currentData = GeneralUtils.substr(data, dataPointer, quantifierInt);
+          currentData = SignatureVerifierUtils.substr(data, dataPointer, quantifierInt);
           dataPointer += quantifierInt;
 
           for (i = 0; i < currentData.length(); i++) {
-            currentResult = GeneralUtils.charAt(currentData, i);
+            currentResult = SignatureVerifierUtils.charAt(currentData, i);
 
             if ((instruction == 'c') && (currentResult >= 128)) {
               currentResult -= 256;
@@ -366,12 +335,12 @@ public class SignatureVerifier {
             quantifierInt = Integer.parseInt(quantifier, 10);
           }
 
-          currentData = GeneralUtils.substr(data, dataPointer, quantifierInt * 2);
+          currentData = SignatureVerifierUtils.substr(data, dataPointer, quantifierInt * 2);
           dataPointer += quantifierInt * 2;
           for (i = 0; i < currentData.length(); i += 2) {
             currentResult =
-                (((GeneralUtils.charAt(currentData, i) & 0xFF) << 8)
-                    + (GeneralUtils.charAt(currentData, i + 1) & 0xFF));
+                (((SignatureVerifierUtils.charAt(currentData, i) & 0xFF) << 8)
+                    + (SignatureVerifierUtils.charAt(currentData, i + 1) & 0xFF));
 
             String key = label + (quantifierInt > 1 ? ((i / 2) + 1) : "");
             result.put(key, currentResult);
@@ -384,14 +353,14 @@ public class SignatureVerifier {
             quantifierInt = Integer.parseInt(quantifier, 10);
           }
 
-          currentData = GeneralUtils.substr(data, dataPointer, quantifierInt * 4);
+          currentData = SignatureVerifierUtils.substr(data, dataPointer, quantifierInt * 4);
           dataPointer += quantifierInt * 4;
           for (i = 0; i < currentData.length(); i += 4) {
             currentResult =
-                (((GeneralUtils.charAt(currentData, i) & 0xFF) << 24)
-                    + ((GeneralUtils.charAt(currentData, i + 1) & 0xFF) << 16)
-                    + ((GeneralUtils.charAt(currentData, i + 2) & 0xFF) << 8)
-                    + ((GeneralUtils.charAt(currentData, i + 3) & 0xFF)));
+                (((SignatureVerifierUtils.charAt(currentData, i) & 0xFF) << 24)
+                    + ((SignatureVerifierUtils.charAt(currentData, i + 1) & 0xFF) << 16)
+                    + ((SignatureVerifierUtils.charAt(currentData, i + 2) & 0xFF) << 8)
+                    + ((SignatureVerifierUtils.charAt(currentData, i + 3) & 0xFF)));
 
             String key = label + (quantifierInt > 1 ? ((i / 4) + 1) : "");
             result.put(key, currentResult);
@@ -406,13 +375,9 @@ public class SignatureVerifier {
     return result;
   }
 
-  private static boolean isCharMatches(String regex, int formatChar) {
-    return Pattern.compile(regex).matcher(String.valueOf(formatChar)).matches();
-  }
-
   private static HashMap<String, Object> parse3(String signature)
       throws BaseSignatureVerificationException {
-    signature = fromBase64(signature);
+    signature = SignatureVerifierUtils.fromBase64(signature);
     if (!"".equals(signature)) {
       throw new SignatureVerificationException("invalid base64 payload");
     }
@@ -433,7 +398,7 @@ public class SignatureVerifier {
     }
 
     Integer masterTokenLength = (Integer) data1.get("masterTokenLength");
-    String masterToken = GeneralUtils.substr(signature, 12, masterTokenLength + 12);
+    String masterToken = SignatureVerifierUtils.substr(signature, 12, masterTokenLength + 12);
     data1.put("masterToken", masterToken);
 
     int s1, s2;
@@ -443,12 +408,12 @@ public class SignatureVerifier {
           String.format("master token length mismatch (%s / %s)", s1, s2));
     }
 
-    signature = GeneralUtils.substr(signature, masterTokenLength + 12);
+    signature = SignatureVerifierUtils.substr(signature, masterTokenLength + 12);
 
     HashMap<String, Object> data2 = unpack("CcustomerSignType/ncustomerTokenLength", signature);
 
     Integer customerTokenLength = (Integer) data2.get("customerTokenLength");
-    String customerToken = GeneralUtils.substr(signature, 3, customerTokenLength + 3);
+    String customerToken = SignatureVerifierUtils.substr(signature, 3, customerTokenLength + 3);
     data2.put("customerToken", customerToken);
 
     if ((s1 = customerTokenLength) != (s2 = customerToken.length())) {
@@ -468,7 +433,7 @@ public class SignatureVerifier {
 
     String resultType = fieldIds.get(fieldId & 0xC0).getType();
 
-    String iStr = padStart(String.valueOf(i), 2, '0');
+    String iStr = SignatureVerifierUtils.padStart(String.valueOf(i), 2, '0');
     String resultName = resultType + iStr;
 
     return new Field(resultName, resultType);
@@ -476,7 +441,7 @@ public class SignatureVerifier {
 
   private static HashMap<String, Object> parse4(String signature)
       throws BaseSignatureVerificationException {
-    signature = fromBase64(signature);
+    signature = SignatureVerifierUtils.fromBase64(signature);
 
     if (signature.length() == 0) {
       throw new SignatureVerificationException("invalid base64 payload");
@@ -484,13 +449,13 @@ public class SignatureVerifier {
 
     HashMap<String, Object> data = unpack("Cversion/CfieldNum", signature);
 
-    int version = GeneralUtils.characterToInt(data.get("version"));
+    int version = SignatureVerifierUtils.characterToInt(data.get("version"));
     if (version != 4) {
       throw new SignatureRangeException("unsupported version");
     }
-    signature = GeneralUtils.substr(signature, 2);
+    signature = SignatureVerifierUtils.substr(signature, 2);
 
-    int fieldNum = GeneralUtils.characterToInt(data.get("fieldNum"));
+    int fieldNum = SignatureVerifierUtils.characterToInt(data.get("fieldNum"));
 
     for (int i = 0; i < fieldNum; ++i) {
       HashMap<String, Object> header = unpack("CfieldId", signature);
@@ -499,7 +464,8 @@ public class SignatureVerifier {
         throw new SignatureVerificationException("premature end of signature 0x01");
       }
 
-      Field fieldTypeDef = fieldTypeDef(GeneralUtils.characterToInt(header.get("fieldId")), i);
+      Field fieldTypeDef =
+          fieldTypeDef(SignatureVerifierUtils.characterToInt(header.get("fieldId")), i);
       HashMap<String, Object> v = new HashMap<>();
       HashMap<String, Object> l;
 
@@ -511,7 +477,7 @@ public class SignatureVerifier {
           } else {
             throw new SignatureVerificationException("premature end of signature 0x02");
           }
-          signature = GeneralUtils.substr(signature, 2);
+          signature = SignatureVerifierUtils.substr(signature, 2);
           break;
         case "ushort":
           v = unpack("Cx/nv", signature);
@@ -520,7 +486,7 @@ public class SignatureVerifier {
           } else {
             throw new Error("premature end of signature 0x03");
           }
-          signature = GeneralUtils.substr(signature, 3);
+          signature = SignatureVerifierUtils.substr(signature, 3);
           break;
         case "ulong":
           v = unpack("Cx/Nv", signature);
@@ -529,27 +495,31 @@ public class SignatureVerifier {
           } else {
             throw new Error("premature end of signature 0x04");
           }
-          signature = GeneralUtils.substr(signature, 5);
+          signature = SignatureVerifierUtils.substr(signature, 5);
           break;
         case "string":
           l = unpack("Cx/nl", signature);
           if (!l.containsKey("l")) {
             throw new Error("premature end of signature 0x05");
           }
-          if ((GeneralUtils.characterToInt(l.get("l")) & 0x8000) > 0) {
-            int newl = GeneralUtils.characterToInt(l.get("l")) & 0xFF;
+          if ((SignatureVerifierUtils.characterToInt(l.get("l")) & 0x8000) > 0) {
+            int newl = SignatureVerifierUtils.characterToInt(l.get("l")) & 0xFF;
             l.put("l", newl);
           }
 
-          String newV = GeneralUtils.substr(signature, 3, GeneralUtils.characterToInt(l.get("l")));
+          String newV =
+              SignatureVerifierUtils.substr(
+                  signature, 3, SignatureVerifierUtils.characterToInt(l.get("l")));
           v.put("v", newV);
           data.put(fieldTypeDef.getName(), newV);
 
-          if (((String) v.get("v")).length() != GeneralUtils.characterToInt(l.get("l"))) {
+          if (((String) v.get("v")).length() != SignatureVerifierUtils.characterToInt(l.get("l"))) {
             throw new SignatureVerificationException("premature end of signature 0x06");
           }
 
-          signature = GeneralUtils.substr(signature, 3 + GeneralUtils.characterToInt(l.get("l")));
+          signature =
+              SignatureVerifierUtils.substr(
+                  signature, 3 + SignatureVerifierUtils.characterToInt(l.get("l")));
 
           break;
         default:
@@ -563,6 +533,6 @@ public class SignatureVerifier {
   }
 
   private static String hashData(String data, String key) throws Exception {
-    return GeneralUtils.encode(key, data);
+    return SignatureVerifierUtils.encode(key, data);
   }
 }
