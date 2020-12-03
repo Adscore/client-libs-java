@@ -55,7 +55,7 @@ class IpV6Utils {
     }
 
     try {
-      return new IPAddressString(ipAddress).toAddress().toIPv6().toBase85String();
+      return new IPAddressString(ipAddress).toAddress().toIPv6().toString();
     } catch (AddressStringException e) {
       throw new SignatureVerificationException(String.format("Invalid address: %s", ipAddress));
     }
