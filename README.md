@@ -2,7 +2,7 @@
 
 Various Java client libraries for utilization of APIs in <a href="https://adscore.com">AdScore.com</a>
 
-<h5> Latest version: 1.0.2 - currently available features: </h5>
+<h5> Latest version: 1.0.3 - currently available features: </h5>
 1. SignatureVerifier
 
 <h5> other languages: <h5>
@@ -24,14 +24,14 @@ The easiest way to utilize the library is to attach it as a Maven dependency:
 <dependency>
   <groupId>com.adscore</groupId>
    <artifactId>adscore-client-libraries</artifactId>
-   <version>1.0.2</version>
+   <version>1.0.3</version>
 </dependency>
 ```
 
 or as a Gradle dependency:
 
 ```gradle
-compile 'com.adscore:adscore-client-libraries:1.0.2'
+compile 'com.adscore:adscore-client-libraries:1.0.3'
 ```
 
 <h5>Maven/Gradle static file</h5>
@@ -42,15 +42,15 @@ Download the latest release from <a href="https://github.com/Adscore/client-libs
 <dependency>
   <groupId>com.adscore</groupId>
    <artifactId>client-libraries</artifactId>
-   <version>1.0.2</version>
+   <version>1.0.3</version>
    <scope>system</scope>
-   <systemPath>${project.basedir}/libs/adscore-client-libraries-1.0.2.jar</systemPath>
+   <systemPath>${project.basedir}/libs/adscore-client-libraries-1.0.3.jar</systemPath>
 </dependency>
 ```
 or as a Gradle:
 
 ```gradle
-compile files('libs/adscore-client-libraries-1.0.2.jar')
+compile files('libs/adscore-client-libraries-1.0.3.jar')
 ```
 
 Note that this is a thin jar, so in case of manual referencing (i.e. not via mvn central) you need to ensure yourself that dependencies are satisifed - for list of those please look at build.gradle.
