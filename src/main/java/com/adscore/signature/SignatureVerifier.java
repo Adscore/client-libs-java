@@ -32,7 +32,11 @@ package com.adscore.signature;
  */
 public class SignatureVerifier {
 
+  public static final int DEFAULT_EXPIRY_TIME_SEC = 60;
+
   /**
+   * Default request and signature expiration is set to 60s
+   *
    * @param signature the string which we want to verify
    * @param userAgent string with full description of user agent like 'Mozilla/5.0 (Linux; Android
    *     9; SM-J530F)...'
@@ -45,8 +49,8 @@ public class SignatureVerifier {
    */
   public static SignatureVerificationResult verify(
       String signature, String userAgent, String signRole, String key, String... ipAddresses) {
-
-    return SignatureVerifier.verify(signature, userAgent, signRole, key, true, null, ipAddresses);
+    return SignatureVerifier.verify(
+        signature, userAgent, signRole, key, true, DEFAULT_EXPIRY_TIME_SEC, ipAddresses);
   }
 
   /**
@@ -74,6 +78,8 @@ public class SignatureVerifier {
   }
 
   /**
+   * Default request and signature expiration is set to 60s
+   *
    * @param signature the string which we want to verify
    * @param userAgent string with full description of user agent like 'Mozilla/5.0 (Linux; Android
    *     9; SM-J530F)...'
@@ -94,7 +100,13 @@ public class SignatureVerifier {
       String... ipAddresses) {
 
     return SignatureVerifier.verify(
-        signature, userAgent, signRole, key, isKeyBase64Encoded, null, ipAddresses);
+        signature,
+        userAgent,
+        signRole,
+        key,
+        isKeyBase64Encoded,
+        DEFAULT_EXPIRY_TIME_SEC,
+        ipAddresses);
   }
 
   /**

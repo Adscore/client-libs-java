@@ -123,7 +123,8 @@ than you have at least few options of how to verify signatures:
 
 ```java
 
-    // Verify with base64 encoded key and without expiry checking
+    // Verify with base64 encoded key.
+    // (No expiry parameter, the default expiry time for requestTime and signatureTime is 60s)
     SignatureVerificationResult result =
         SignatureVerifier.verify(
             "BAYAXlNKGQFeU0oggAGBAcAAIAUdn1gbCBmA-u-kF--oUSuFw4B93piWC1Dn-D_1_6gywQAgEXCqgk2zPD6hWI1Y2rlrtV-21eIYBsms0odUEXNbRbA",
@@ -145,11 +146,12 @@ than you have at least few options of how to verify signatures:
             "customer",
             "key_non_base64_encoded",
             false, // notify that we use non encoded key
-            60, // signature cant be older than 1 min
+            60, // signature cant be older than 1 min 
             "73.109.57.137");
     [..]
 
     // Verify against number of ip4 and ip6 addresses
+    //(No expiry parameter, the default expiry time for requestTime and signatureTime is 60s)
     result =
         SignatureVerifier.verify(
             "BAYAXlNKGQFeU0oggAGBAcAAIAUdn1gbCBmA-u-kF--oUSuFw4B93piWC1Dn-D_1_6gywQAgEXCqgk2zPD6hWI1Y2rlrtV-21eIYBsms0odUEXNbRbA",

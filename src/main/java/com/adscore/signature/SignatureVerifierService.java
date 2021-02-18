@@ -181,8 +181,10 @@ public class SignatureVerifierService {
 
     long currentEpochInSeconds = new Date().getTime() / 1000;
 
-    boolean isSignatureTimeExpired = signatureTime + expiry < currentEpochInSeconds;
-    boolean isRequestTimeExpired = requestTime + expiry < currentEpochInSeconds;
+    // Cast both times to long, because operating on int epoch seconds exceeds integer max value
+    // while adding higher dates (around 2035)
+    boolean isSignatureTimeExpired = (long) signatureTime + (long) expiry < currentEpochInSeconds;
+    boolean isRequestTimeExpired = (long) requestTime + (long) expiry < currentEpochInSeconds;
 
     return isSignatureTimeExpired || isRequestTimeExpired;
   }
