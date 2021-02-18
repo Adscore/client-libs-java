@@ -115,24 +115,21 @@ public class SignatureVerifierService {
           token = (String) data.get(signRole + "Token");
         }
 
+        int signatureTime = SignatureVerifierUtils.characterToInt(data.get("signatureTime"));
+        int requestTime = SignatureVerifierUtils.characterToInt(data.get("requestTime"));
+
         for (String result : results.keySet()) {
+
           switch (signType) {
             case 1:
               String signatureBase =
-                  getBase(
-                      result,
-                      SignatureVerifierUtils.characterToInt(data.get("requestTime")),
-                      SignatureVerifierUtils.characterToInt(data.get("signatureTime")),
-                      ipAddress,
-                      userAgent);
+                  getBase(result, requestTime, signatureTime, ipAddress, userAgent);
 
               boolean isHashedDataEqualToToken =
                   SignatureVerifierUtils.encode(key, signatureBase).equals(token);
 
               if (isHashedDataEqualToToken) {
-                if (expiry != null
-                    && SignatureVerifierUtils.characterToInt(data.get("signatureTime")) + expiry
-                        < new Date().getTime() / 1000) {
+                if (isExpired(expiry, signatureTime, requestTime)) {
                   validationResult.setExpired(true);
                   return validationResult;
                 }
@@ -166,6 +163,28 @@ public class SignatureVerifierService {
       validationResult.setError(exp.getMessage());
       return validationResult;
     }
+  }
+
+  /**
+   * @param expiry how long request and signature are valid (in seconds)
+   * @param signatureTime epoch time in seconds
+   * @param requestTime epoch time in seconds
+   * @return false if expiry is null. True if either signatureTime or requestTime expired, false
+   *     otherwise.
+   */
+  boolean isExpired(Integer expiry, int signatureTime, int requestTime) {
+
+    if (expiry == null) {
+      // If expiry time not provided, neither signatureTime nor requestTime can be expired.
+      return false;
+    }
+
+    long currentEpochInSeconds = new Date().getTime() / 1000;
+
+    boolean isSignatureTimeExpired = signatureTime + expiry < currentEpochInSeconds;
+    boolean isRequestTimeExpired = requestTime + expiry < currentEpochInSeconds;
+
+    return isSignatureTimeExpired || isRequestTimeExpired;
   }
 
   String getBase(
