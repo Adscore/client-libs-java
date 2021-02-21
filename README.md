@@ -11,10 +11,25 @@ Various Java client libraries for utilization of APIs in <a href="https://adscor
  <li> JS: https://github.com/variably/adscore-node </li>
 </ul>
 
-<h3>How to use</h3>
+<h4>How to use</h3>
 
 In order to use library:
 - JRE 1.8 or higher is required
+
+<h5>Samples</h5>
+Following are few quick examples of how to use a verifier,
+ first import the entry point for the library.
+ 
+To get the client-libs-java-sample project as submodule execute e.g.
+```
+git submodule init && git pull --recurse-submodules && git submodule update --remote
+```
+or clone it as a separate repository:
+```
+git clone https://github.com/Adscore/client-libs-java-samples 
+```
+
+Then check `submodules/client-libs-java-samples/README.md`, there is info on how to execute samples.
 
 <h5>Maven/Gradle central repository</h5>
 
