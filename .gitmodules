@@ -1,0 +1,3 @@
+[submodule "submodules/client-libs-java-samples"]
+	path = submodules/client-libs-java-samples
+	url = https://github.com/Adscore/client-libs-java-samples
