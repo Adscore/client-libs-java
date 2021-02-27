@@ -124,6 +124,9 @@ The definition of verify function looks as follows:
       [Integer expiry (=null),]             // optional due existance of overloaded function
       String... ipAddresses) {
 ```
+<b>Executable</b> samples you can find on:
+https://github.com/Adscore/client-libs-java-samples
+<br> (See section <b>Samples</b> above).
 
 Following are few quick examples of how to use verifier, first import the entry point for library:
 
