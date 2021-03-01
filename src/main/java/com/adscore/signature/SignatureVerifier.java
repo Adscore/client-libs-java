@@ -44,7 +44,9 @@ public class SignatureVerifier {
    *     customers this should be always set to 'customer'
    * @param key string containing related zone key
    * @param ipAddresses array of strings containing ip4 or ip6 addresses against which we check
-   *     signature
+   *     signature. Usually, is fulfilled from httpXForwardForIpAddresses or/and remoteIpAddresses
+   *     header. All possible ip addresses may be provided at once, in case of correct result,
+   *     verifier returns list of chosen ip addresses that matched with the signature.
    * @return VerificationResult
    */
   public static SignatureVerificationResult verify(
@@ -61,7 +63,9 @@ public class SignatureVerifier {
    *     customers this should be always set to 'customer'
    * @param key string containing related zone key
    * @param ipAddresses array of strings containing ip4 or ip6 addresses against which we check
-   *     signature
+   *     signature. Usually, is fulfilled from httpXForwardForIpAddresses or/and remoteIpAddresses
+   *     header. All possible ip addresses may be provided at once, in case of correct result,
+   *     verifier returns list of chosen ip addresses that matched with the signature.
    * @param expiry number which is time in seconds. IF signatureTime + expiry > CurrentDateInSeconds
    *     THEN result is expired
    * @return VerificationResult
@@ -87,7 +91,9 @@ public class SignatureVerifier {
    *     customers this should be always set to 'customer'
    * @param key string containing related zone key
    * @param ipAddresses array of strings containing ip4 or ip6 addresses against which we check
-   *     signature
+   *     signature. Usually, is fulfilled from httpXForwardForIpAddresses or/and remoteIpAddresses
+   *     header. All possible ip addresses may be provided at once, in case of correct result,
+   *     verifier returns list of chosen ip addresses that matched with the signature.
    * @param isKeyBase64Encoded boolean defining if passed key is base64 encoded or not
    * @return VerificationResult
    */
@@ -117,7 +123,9 @@ public class SignatureVerifier {
    *     customers this should be always set to 'customer'
    * @param key string containing related zone key
    * @param ipAddresses array of strings containing ip4 or ip6 addresses against which we check
-   *     signature
+   *     signature. Usually, is fulfilled from httpXForwardForIpAddresses or/and remoteIpAddresses
+   *     header. All possible ip addresses may be provided at once, in case of correct result,
+   *     verifier returns list of chosen ip addresses that matched with the signature.
    * @param expiry number which is time in seconds. IF signatureTime + expiry > CurrentDateInSeconds
    *     THEN result is expired
    * @param isKeyBase64Encoded boolean defining if passed key is base64 encoded or not
