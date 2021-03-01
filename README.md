@@ -109,7 +109,9 @@ The definition of verify function looks as follows:
    *     customers this should be always set to 'customer'
    * @param key string containing related zone key
    * @param ipAddresses array of strings containing ip4 or ip6 addresses against which we check
-   *     signature
+   *     signature. Usually, is fulfilled from httpXForwardForIpAddresses or/and remoteIpAddresses
+   *     header. All possible ip addresses may be provided at once, in case of correct result,
+   *     verifier returns list of chosen ip addresses that matched with the signature.
    * @param expiry number which is time in seconds. IF signatureTime + expiry > CurrentDateInSeconds
    *     THEN result is expired. If null than expiry is not checked.
    * @param isKeyBase64Encoded boolean defining if passed key is base64 encoded or not
@@ -124,6 +126,9 @@ The definition of verify function looks as follows:
       [Integer expiry (=null),]             // optional due existance of overloaded function
       String... ipAddresses) {
 ```
+<b>Executable</b> samples you can find on:
+https://github.com/Adscore/client-libs-java-samples
+<br> (See section <b>Samples</b> above).
 
 Following are few quick examples of how to use verifier, first import the entry point for library:
 
@@ -172,6 +177,8 @@ than you have at least few options of how to verify signatures:
             "customer",
             "key_non_base64_encoded",
             false, // notify that we use non encoded key
+                
+             //Multiple ip addresses either from httpXForwardForIpAddresses and remoteIpAddresses header
             "73.109.57.137", "73.109.57.138", "73.109.57.139", "73.109.57.140", "0:0:0:0:0:ffff:4d73:55d3", "0:0:0:0:0:fffff:4d73:55d4", "0:0:0:0:0:fffff:4d73:55d5", "0:0:0:0:0:fffff:4d73:55d6");
     [..]
 
