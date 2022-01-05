@@ -312,7 +312,7 @@ public class SignatureVerifierService {
           if (v.containsKey("v")) {
             data.put(fieldTypeDef.getName(), v.get("v"));
           } else {
-            throw new Error("premature end of signature 0x03");
+            throw new SignatureVerificationException("premature end of signature 0x03");
           }
           signature = SignatureVerifierUtils.substr(signature, 3);
           break;
@@ -321,14 +321,14 @@ public class SignatureVerifierService {
           if (v.containsKey("v")) {
             data.put(fieldTypeDef.getName(), v.get("v"));
           } else {
-            throw new Error("premature end of signature 0x04");
+            throw new SignatureVerificationException("premature end of signature 0x04");
           }
           signature = SignatureVerifierUtils.substr(signature, 5);
           break;
         case "string":
           l = Unpacker.unpack("Cx/nl", signature).getData();
           if (!l.containsKey("l")) {
-            throw new Error("premature end of signature 0x05");
+            throw new SignatureVerificationException("premature end of signature 0x05");
           }
           if ((SignatureVerifierUtils.characterToInt(l.get("l")) & 0x8000) > 0) {
             int newl = SignatureVerifierUtils.characterToInt(l.get("l")) & 0xFF;
