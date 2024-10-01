@@ -1,3 +1,4 @@
+# This library has been deprecated. Please refer to the current library at https://github.com/Adscore/java-common
 <h1>What is it?</h1>
 
 Various Java client libraries for utilization of APIs in <a href="https://adscore.com">AdScore.com</a>
